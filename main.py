@@ -1,13 +1,17 @@
 import vk
 import webbrowser
 import time
-import geocoder
+from  geopy.geocoders import Nominatim
 import os
 import geopandas
 import folium
 keyword_city = "Москва"
-g=geocoder.google("Moscow")
-print(g.latlng)
+geolocator = Nominatim()
+location = geolocator.geocode(keyword_city)
+print((location.latitude,location.longitude))
+m=folium.Map(
+            location=[location.latitude, location.longitude]
+        )
 keywords_groups = ['новости']
 print('Дайте приложению необходимые разрешения, а после скопируйте токен.\n')
 print('------------------\n')
@@ -30,6 +34,7 @@ n = int(input())
 #print(wall_content)
 cities = api.database.getCities(country_id=1, v='5.95')['items']
 group_ids=''
+groups=[]
 for city in cities:
     print(city['id'], "\t", city['title'])
 print('\n-----------------------------------------------------')
@@ -37,16 +42,23 @@ for q in range(len(cities)):
     city_id = cities[q]['id']
     city_name = cities[q]['title']
     for keyword in keywords_groups:
+        groups=[]
         time.sleep(1)
         # Получаем список IDs групп города удовлетворяющих ключевому слову
         group_ids = [g['id'] for g in api.groups.search(v='5.95', city_id=city_id, q=keyword, sort=2, count=10)['items']]
 
         # Получаем список групп города удовлетворяющих ключевому слову
-        #groups = api.groups.getById(v='5.95', fields='members_count,contacts', group_ids=group_ids)
+        for group_id in group_ids:
+            time.sleep(1)
+            groups.append(api.groups.getById(v='5.95', fields='members_count,contacts', group_id=group_id)[0]['name'])
 
+        location = geolocator.geocode(city_name)
+
+        folium.Marker([location.latitude, location.longitude], popup=groups, tooltip="Нажмите").add_to(m)
 
 
         print(group_ids)
+        print(groups)
         with open('wall_output.txt','a') as out:
             #for key,val in wall_content.items():
             #out.write('{}:{}\n'.format(key,val))
@@ -59,7 +71,7 @@ for q in range(len(cities)):
                         wall_content = api.wall.get(v='5.95', owner_id=int(group_id)*-1, count=n)
                         out.write("Паблик/пользователь с id ('")
                         out.write(str(wall_content['items'][k]['owner_id']))
-                        out.write("') запостил: ")
+                        out.write("') запостил: \n")
                         out.write("\n")
                         out.write(wall_content['items'][k]['text'])
                         out.write("\n")
@@ -67,6 +79,6 @@ for q in range(len(cities)):
                         out.write("\n")
                     elif(closed==1 or closed==2):
                         print("Стена закрыта")
-
-print('\nКорректный вывод в файле wall_output.txt')
-
+m.save('map.html')
+print('\nВывод всех постов в файле wall_output.txt')
+print('\nВывод маркеров на карте в файле map.html')
