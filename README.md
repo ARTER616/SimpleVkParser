@@ -4,4 +4,4 @@
 Установка geopandas через терминал https://github.com/geopandas/geopandas/issues/793
 
 //////////////
-Получение координат по городу https://toster.ru/q/253679
+Получение координат по городу https://toster.ru/q/253679 // https://qa-help.ru/questions/kak-poluchit-koordinaty-adresa-iz-python
