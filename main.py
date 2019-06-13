@@ -80,5 +80,6 @@ for q in range(len(cities)):
                     elif(closed==1 or closed==2):
                         print("Стена закрыта")
 m.save('map.html')
+webbrowser.open('map.html')
 print('\nВывод всех постов в файле wall_output.txt')
 print('\nВывод маркеров на карте в файле map.html')
