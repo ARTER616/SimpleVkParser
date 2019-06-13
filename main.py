@@ -29,10 +29,14 @@ api = vk.API(session,timeout=60)
 #short_link=str(input())
 print('\nСколько постов вы хотите загрузить?\n')
 n = int(input())
+print('\nСколько брать пабликов из каждого города?')
+public_count = int(input())
+print("\nСколько брать городов?")
+city_count = int(input())
 #owner_id - если есть id, domain - если есть короткий адрес
 #wall_content = api.wall.get(v='5.95',domain=short_link, count=n)
 #print(wall_content)
-cities = api.database.getCities(country_id=1, v='5.95')['items']
+cities = api.database.getCities(country_id=1, need_all=0, count=city_count, v='5.95')['items']
 group_ids=''
 groups=[]
 for city in cities:
@@ -45,7 +49,7 @@ for q in range(len(cities)):
         groups=[]
         time.sleep(1)
         # Получаем список IDs групп города удовлетворяющих ключевому слову
-        group_ids = [g['id'] for g in api.groups.search(v='5.95', city_id=city_id, q=keyword, sort=2, count=10)['items']]
+        group_ids = [g['id'] for g in api.groups.search(v='5.95', city_id=city_id, q=keyword, sort=2, count=public_count)['items']]
 
         # Получаем список групп города удовлетворяющих ключевому слову
         for group_id in group_ids:
@@ -53,8 +57,12 @@ for q in range(len(cities)):
             groups.append(api.groups.getById(v='5.95', fields='members_count,contacts', group_id=group_id)[0]['name'])
 
         location = geolocator.geocode(city_name)
-
-        folium.Marker([location.latitude, location.longitude], popup=groups, tooltip="Нажмите").add_to(m)
+        group_string=''
+        groups_count=1
+        for group in groups:
+            group_string+=('\n'+str(groups_count)+') '+group+'\n')
+            groups_count+=1
+        folium.Marker([location.latitude, location.longitude], popup=group_string, tooltip="Нажмите").add_to(m)
 
 
         print(group_ids)
@@ -63,22 +71,23 @@ for q in range(len(cities)):
             #for key,val in wall_content.items():
             #out.write('{}:{}\n'.format(key,val))
             for group_id in group_ids:
-                for k in range(n):
-                    time.sleep(1)
-                    closed = api.groups.getById(v='5.95', group_id=group_id)[0]['is_closed']
-                    if(closed == 0):
-                        wall_content = api.wall.get(v='5.95', owner_id=int(group_id)*-1, count=n)
-                        print("Стена открыта")
-                        out.write("Паблик/пользователь с id ('")
-                        out.write(str(wall_content['items'][k]['owner_id']))
-                        out.write("') запостил: \n")
-                        out.write("\n")
-                        out.write(wall_content['items'][k]['text'])
-                        out.write("\n")
-                        out.write("------------------------------------------")
-                        out.write("\n")
-                    elif(closed==1 or closed==2):
-                        print("Стена закрыта")
+                closed = api.groups.getById(v='5.95', group_id=group_id)[0]['is_closed']
+                if (closed == 0):
+                    for k in range(n):
+                        time.sleep(1)
+                        if(closed == 0):
+                            wall_content = api.wall.get(v='5.95', owner_id=int(group_id)*-1, count=n)
+                            print("Стена открыта")
+                            out.write("Паблик/пользователь с id ('")
+                            out.write(str(wall_content['items'][k]['owner_id']))
+                            out.write("') запостил: \n")
+                            out.write("\n")
+                            out.write(wall_content['items'][k]['text'])
+                            out.write("\n")
+                            out.write("------------------------------------------")
+                            out.write("\n")
+                elif(closed==1 or closed==2):
+                    print("Стена закрыта")
 m.save('map.html')
 webbrowser.open('map.html')
 print('\nВывод всех постов в файле wall_output.txt')
