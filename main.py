@@ -66,9 +66,9 @@ for q in range(len(cities)):
                 for k in range(n):
                     time.sleep(1)
                     closed = api.groups.getById(v='5.95', group_id=group_id)[0]['is_closed']
-                    print(closed)
                     if(closed == 0):
                         wall_content = api.wall.get(v='5.95', owner_id=int(group_id)*-1, count=n)
+                        print("Стена открыта")
                         out.write("Паблик/пользователь с id ('")
                         out.write(str(wall_content['items'][k]['owner_id']))
                         out.write("') запостил: \n")
