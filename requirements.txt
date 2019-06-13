@@ -1,4 +1,7 @@
 setuptools==40.6.3
 vk==2.0.2
 vk-api==11.4.0
+folium==0.9.1
+geopy==1.20.0
+geopandas==0.5.0
 
