@@ -5,6 +5,7 @@ from  geopy.geocoders import Nominatim
 import os
 import geopandas
 import folium
+from selenium import webdriver
 keyword_city = "Москва"
 geolocator = Nominatim()
 location = geolocator.geocode(keyword_city)
@@ -13,16 +14,21 @@ m=folium.Map(
             location=[location.latitude, location.longitude]
         )
 keywords_groups = ['новости']
-print('Дайте приложению необходимые разрешения, а после скопируйте токен.\n')
+print('Войдите и дайте приложению необходимые разрешения.\n')
 print('------------------\n')
-webbrowser.open('https://oauth.vk.com/authorize?client_id=6998450&display=page&redirect_uri=https://oauth.vk.com/blank.html&scope=friends%2Cphotos%20%2Caudio%2Cvideo%2Cdocs%2Cnotes%2Cpages%2Cstatus%2Cwall%2Cgroups%2Cnotifications%2Coffline&response_type=token')
+#webbrowser.open('https://oauth.vk.com/authorize?client_id=6998450&display=page&redirect_uri=https://oauth.vk.com/blank.html&scope=friends%2Cphotos%20%2Caudio%2Cvideo%2Cdocs%2Cnotes%2Cpages%2Cstatus%2Cwall%2Cgroups%2Cnotifications%2Coffline&response_type=token')
+driver = webdriver.Firefox()
+driver.get('https://oauth.vk.com/authorize?client_id=6998450&display=page&redirect_uri=https://oauth.vk.com/blank.html&scope=friends%2Cphotos%20%2Caudio%2Cvideo%2Cdocs%2Cnotes%2Cpages%2Cstatus%2Cwall%2Cgroups%2Cnotifications%2Coffline&response_type=token')
+print('Подтвердите вход(чото написать надо кароче, я не знаю как сделать нажатие на кнопку)')
+confirm=str(input())
+apikey = driver.current_url[45:][0:-31]
+driver.close()
+print("Токен: "+apikey)
 #Альтернативная ссылка
 #print('https://oauth.vk.com/token?grant_type=password&client_id=6998450&client_secret=hHbZxrka2uZ6jB1inYsH&username='+login+'&password='+password)
 #url = os.environ["https://oauth.vk.com/authorize?client_id=6998450&display=page&redirect_uri=https://oauth.vk.com/blank.html&scope=friends%2Cphotos%20%2Caudio%2Cvideo%2Cdocs%2Cnotes%2Cpages%2Cstatus%2Cwall%2Cgroups%2Cnotifications%2Coffline&response_type=token"]
 #parsed = urlparse.urlparse(url)
 #print (urlparse.parse_qs(parsed.query)['access_token'])
-print('Вставьте токен: \n')
-apikey=str(input())
 session = vk.Session(access_token = apikey)
 api = vk.API(session,timeout=60)
 #print('\nВведите короткую ссылку на паблик или пользователя: \n')
