@@ -75,7 +75,6 @@ for q in range(len(cities)):
                 if (closed == 0):
                     for k in range(n):
                         time.sleep(1)
-                        if(closed == 0):
                             wall_content = api.wall.get(v='5.95', owner_id=int(group_id)*-1, count=n)
                             print("Стена открыта")
                             out.write("Паблик/пользователь с id ('")
